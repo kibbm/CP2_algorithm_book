@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DFS 격자 미로 시각화</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 2rem;
+            background-color: #2d3748;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .text-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #4a5568;
+            border-radius: 0.75rem;
+            text-align: left;
+        }
+        .cell {
+            border: 1px solid #4a5568;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease-in-out;
+        }
+        .path {
+            background-color: #fff;
+        }
+        .wall {
+            background-color: #000;
+        }
+        .visited {
+            background-color: #38a169;
+            color: #fff;
+        }
+        .start-end {
+            background-color: #e53e3e;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-3xl font-bold mb-4">DFS 격자 미로 시각화</h1>
+    <p class="text-lg text-gray-400">DFS 알고리즘이 (0,0)에서 (4,4)까지 경로를 탐색하는 과정을 시각적으로 보여줍니다.</p>
+    
+    <div id="grid-container" class="my-8 rounded-lg overflow-hidden shadow-lg" style="width: 300px; height: 300px; display: grid; grid-template-columns: repeat(5, 1fr);"></div>
+
+    <div class="text-section">
+        <h2 class="text-xl font-bold mb-2">코드 실행 결과</h2>
+        <div id="result-display" class="mt-4 text-2xl font-bold text-green-300"></div>
+    </div>
+</div>
+
+<script>
+    // Python code translated to JavaScript
+    var grid = [
+        [0,0,1,0,0],
+        [1,0,1,0,1],
+        [0,0,0,0,0],
+        [0,1,1,1,0],
+        [0,0,0,1,0]
+    ];
+    var n = 5;
+    var visited = Array.from({ length: n }, () => Array(n).fill(false));
+    var dirs = [[1,0], [-1,0], [0,1], [0,-1]];
+    var gridContainer = document.getElementById('grid-container');
+    var resultDisplay = document.getElementById('result-display');
+
+    function createGridHTML() {
+        for (let r = 0; r < n; r++) {
+            for (let c = 0; c < n; c++) {
+                const cell = document.createElement('div');
+                cell.id = `cell-${r}-${c}`;
+                cell.classList.add('cell');
+                if (grid[r][c] === 1) {
+                    cell.classList.add('wall');
+                } else {
+                    cell.classList.add('path');
+                }
+                gridContainer.appendChild(cell);
+            }
+        }
+    }
+
+    function updateCellVisuals(r, c) {
+        const cell = document.getElementById(`cell-${r}-${c}`);
+        if (!cell) return;
+        cell.classList.add('visited');
+        cell.textContent = `(${r},${c})`;
+    }
+
+    async function dfs(x, y) {
+        if (x < 0 || x >= n || y < 0 || y >= n) {
+            return;
+        }
+        if (grid[x][y] === 1 || visited[x][y]) {
+            return;
+        }
+        
+        visited[x][y] = true;
+        updateCellVisuals(x, y);
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        for (const [dx, dy] of dirs) {
+            await dfs(x + dx, y + dy);
+        }
+    }
+
+    window.onload = async function() {
+        createGridHTML();
+        await dfs(0, 0);
+        resultDisplay.textContent = `(4,4) 방문 여부: ${visited[4][4]}`;
+
+        const startCell = document.getElementById('cell-0-0');
+        startCell.classList.remove('visited');
+        startCell.classList.add('start-end');
+        startCell.textContent = '시작';
+        
+        const endCell = document.getElementById('cell-4-4');
+        endCell.classList.remove('visited');
+        endCell.classList.add('start-end');
+        endCell.textContent = '끝';
+    };
+
+</script>
+
+</body>
+</html>

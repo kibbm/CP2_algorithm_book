@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>무방향 그래프 차수</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 2rem;
+            background-color: #2d3748;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .text-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #4a5568;
+            border-radius: 0.75rem;
+            text-align: left;
+            width: 100%;
+        }
+        .graph-area {
+            position: relative;
+            width: 100%;
+            min-height: 400px;
+        }
+        .node {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background-color: #4299e1;
+            border: 2px solid #2b6cb0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        .degree-label {
+            position: absolute;
+            top: -25px;
+            font-weight: bold;
+            color: #48bb78;
+        }
+        .edge {
+            position: absolute;
+            height: 2px;
+            background-color: #a0aec0;
+            transform-origin: left center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-3xl font-bold mb-4">무방향 그래프 차수</h1>
+    <p class="text-lg text-gray-400">각 정점에 연결된 간선의 수, 즉 차수를 계산하고 시각화합니다.</p>
+
+    <div class="graph-area">
+        <!-- 노드 위치 -->
+        <div id="node-A" class="node" style="top: 50px; left: 15%;">A<span class="degree-label" id="degree-A"></span></div>
+        <div id="node-B" class="node" style="top: 50px; left: 80%;">B<span class="degree-label" id="degree-B"></span></div>
+        <div id="node-C" class="node" style="top: 200px; left: 25%;">C<span class="degree-label" id="degree-C"></span></div>
+        <div id="node-D" class="node" style="top: 200px; left: 70%;">D<span class="degree-label" id="degree-D"></span></div>
+    </div>
+
+    <div class="text-section">
+        <h2 class="text-xl font-bold mb-2">코드 실행 결과</h2>
+        <div id="degree-display" class="mt-4 text-gray-200 text-left"></div>
+    </div>
+</div>
+
+<script>
+    // Python code translated to JavaScript
+    var edges = [["A", "B"], ["A", "C"], ["B", "D"], ["C", "D"]];
+    var graph = {};
+    
+    function drawGraph() {
+        const nodePositions = {
+            "A": document.getElementById('node-A').getBoundingClientRect(),
+            "B": document.getElementById('node-B').getBoundingClientRect(),
+            "C": document.getElementById('node-C').getBoundingClientRect(),
+            "D": document.getElementById('node-D').getBoundingClientRect()
+        };
+        const graphArea = document.querySelector('.graph-area');
+        const graphAreaRect = graphArea.getBoundingClientRect();
+
+        edges.forEach(([a, b]) => {
+            const posA = {
+                x: nodePositions[a].left - graphAreaRect.left + nodePositions[a].width / 2,
+                y: nodePositions[a].top - graphAreaRect.top + nodePositions[a].height / 2
+            };
+            const posB = {
+                x: nodePositions[b].left - graphAreaRect.left + nodePositions[b].width / 2,
+                y: nodePositions[b].top - graphAreaRect.top + nodePositions[b].height / 2
+            };
+            
+            const dx = posB.x - posA.x;
+            const dy = posB.y - posA.y;
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            const edgeDiv = document.createElement('div');
+            edgeDiv.classList.add('edge');
+            edgeDiv.style.width = `${distance}px`;
+            edgeDiv.style.transform = `rotate(${angle}deg)`;
+            edgeDiv.style.top = `${posA.y}px`;
+            edgeDiv.style.left = `${posA.x}px`;
+            graphArea.appendChild(edgeDiv);
+        });
+    }
+
+    window.onload = function() {
+        // Build adjacency list
+        for (const [a, b] of edges) {
+            if (!graph[a]) graph[a] = [];
+            if (!graph[b]) graph[b] = [];
+            graph[a].push(b);
+            graph[b].push(a);
+        }
+
+        // Calculate degrees
+        const deg = {};
+        const nodes = Object.keys(graph).sort();
+        
+        nodes.forEach(node => {
+            deg[node] = graph[node].length;
+        });
+
+        // Display results
+        const displayDiv = document.getElementById('degree-display');
+        let resultHtml = '<ul>';
+        nodes.forEach(node => {
+            resultHtml += `<li><strong>${node}:</strong> ${deg[node]}</li>`;
+            const degreeLabel = document.getElementById(`degree-${node}`);
+            if (degreeLabel) {
+                degreeLabel.textContent = `차수: ${deg[node]}`;
+            }
+        });
+        resultHtml += '</ul>';
+        displayDiv.innerHTML = resultHtml;
+
+        drawGraph();
+    };
+</script>
+
+</body>
+</html>

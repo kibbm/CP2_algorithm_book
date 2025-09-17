@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>위상 정렬 시뮬레이션 (과목 순서)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .graph-container {
+            width: 100%;
+            max-width: 900px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+        }
+
+        .graph-area {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            background-color: #f8fafc;
+            overflow: hidden;
+        }
+
+        .node {
+            background-color: #6366f1;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 14px;
+            width: 90px;
+            height: 90px;
+            position: absolute;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s ease-in-out;
+            z-index: 10;
+        }
+        
+        .node.highlight {
+            background-color: #ef4444;
+            transform: scale(1.1);
+        }
+
+        .node.processed {
+            background-color: #22c55e;
+        }
+        
+        .text-box {
+            background-color: #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #4a5568;
+            margin-top: 16px;
+        }
+        
+        .in-degree {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #fcd34d;
+            border-radius: 9999px;
+            padding: 2px 8px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #374151;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .queue-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 80px;
+            height: 40px;
+            background-color: #fcd34d;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #4b5563;
+            animation: fadeIn 0.5s ease-in-out;
+            white-space: nowrap;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="graph-container flex flex-col items-center">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">위상 정렬 시뮬레이션</h1>
+        <p class="text-gray-600 mb-6 text-center">
+            **위상 정렬**을 이용해 과목 수강 순서를 정해 봅시다! 각 동그라미는 '과목'을, 화살표는 '먼저 들어야 하는 과목'을 나타내요.
+        </p>
+        
+        <div class="flex space-x-4 mb-4">
+            <button id="startButton" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
+                시뮬레이션 시작
+            </button>
+            <button id="resetButton" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
+                초기화
+            </button>
+        </div>
+
+        <div class="w-full max-w-2xl text-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-700 mb-2">큐 (Queue)</h2>
+            <div id="queue-display" class="flex justify-center items-center h-12 bg-gray-200 rounded-lg p-2 space-x-2">
+                <!-- Queue items will be added here -->
+            </div>
+        </div>
+
+        <div class="graph-area w-full" id="graph-area">
+            <!-- 그래프 노드와 화살표가 여기에 추가됩니다 -->
+        </div>
+
+        <div class="text-box w-full max-w-2xl mt-6">
+            <h2 class="text-xl font-semibold mb-2">정렬된 순서:</h2>
+            <div id="output-order" class="text-lg font-mono bg-gray-200 p-2 rounded"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const courses = ["민서", "지우", "하람", "서윤"];
+            const edges = [
+                ["민서", "지우"],
+                ["지우", "하람"]
+            ];
+            
+            const nodePositions = {
+                "민서": {x: 50, y: 150},
+                "지우": {x: 230, y: 150},
+                "하람": {x: 410, y: 150},
+                "서윤": {x: 600, y: 250},
+            };
+
+            const graphArea = document.getElementById('graph-area');
+            const outputOrderElement = document.getElementById('output-order');
+            const startButton = document.getElementById('startButton');
+            const resetButton = document.getElementById('resetButton');
+            const queueDisplay = document.getElementById('queue-display');
+            
+            const drawGraph = (showInDegrees = false) => {
+                graphArea.innerHTML = '';
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.setAttribute("class", "absolute top-0 left-0 w-full h-full");
+                graphArea.appendChild(svg);
+                
+                for (const course of courses) {
+                    const node = document.createElement('div');
+                    node.className = 'node';
+                    node.id = `node-${course}`;
+                    node.style.left = `${nodePositions[course].x}px`;
+                    node.style.top = `${nodePositions[course].y}px`;
+                    node.innerHTML = `<span>${course}</span>`;
+                    graphArea.appendChild(node);
+                    
+                    if (showInDegrees) {
+                        const inDegreeDisplay = document.createElement('span');
+                        inDegreeDisplay.className = 'in-degree';
+                        inDegreeDisplay.id = `in-degree-${course}`;
+                        node.appendChild(inDegreeDisplay);
+                    }
+                }
+
+                edges.forEach(([u, v]) => {
+                    const uPos = nodePositions[u];
+                    const vPos = nodePositions[v];
+                    const nodeRadius = 45;
+                    const arrowheadSize = 8;
+                    
+                    const dx = vPos.x - uPos.x;
+                    const dy = vPos.y - uPos.y;
+                    const length = Math.sqrt(dx * dx + dy * dy);
+                    const angle = Math.atan2(dy, dx);
+
+                    const startX = uPos.x + nodeRadius + Math.cos(angle) * nodeRadius;
+                    const startY = uPos.y + nodeRadius + Math.sin(angle) * nodeRadius;
+                    const endX = vPos.x + nodeRadius - Math.cos(angle) * nodeRadius;
+                    const endY = vPos.y + nodeRadius - Math.sin(angle) * nodeRadius;
+
+                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    line.setAttribute("x1", startX);
+                    line.setAttribute("y1", startY);
+                    line.setAttribute("x2", endX);
+                    line.setAttribute("y2", endY);
+                    line.setAttribute("stroke", "#4b5563");
+                    line.setAttribute("stroke-width", "2");
+                    svg.appendChild(line);
+
+                    const arrowheadPoints = [
+                        `${endX},${endY}`,
+                        `${endX - arrowheadSize * Math.cos(angle - Math.PI / 6)},${endY - arrowheadSize * Math.sin(angle - Math.PI / 6)}`,
+                        `${endX - arrowheadSize * Math.cos(angle + Math.PI / 6)},${endY - arrowheadSize * Math.sin(angle + Math.PI / 6)}`
+                    ].join(' ');
+
+                    const arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+                    arrowhead.setAttribute("points", arrowheadPoints);
+                    arrowhead.setAttribute("fill", "#4b5563");
+                    svg.appendChild(arrowhead);
+                });
+            };
+
+            const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+            const runTopologicalSort = async () => {
+                drawGraph(true);
+                queueDisplay.innerHTML = '';
+                outputOrderElement.textContent = '...';
+                
+                const adj = {};
+                const in_deg = {};
+                courses.forEach(c => {
+                    adj[c] = [];
+                    in_deg[c] = 0;
+                });
+                
+                for (const [u, v] of edges) {
+                    adj[u].push(v);
+                    in_deg[v]++;
+                }
+
+                let q = [];
+                for (const course of courses) {
+                    const inDegEl = document.getElementById(`in-degree-${course}`);
+                    inDegEl.textContent = in_deg[course];
+                    if (in_deg[course] === 0) {
+                        q.push(course);
+                        document.getElementById(`node-${course}`).classList.add('highlight');
+                    }
+                }
+                q.sort();
+
+                await sleep(1500);
+
+                const order = [];
+                while (q.length > 0) {
+                    const x = q.shift();
+                    order.push(x);
+                    
+                    const nodeEl = document.getElementById(`node-${x}`);
+                    nodeEl.classList.remove('highlight');
+                    nodeEl.classList.add('processed');
+
+                    queueDisplay.innerHTML = '';
+                    q.forEach(item => {
+                        const queueItemEl = document.createElement('div');
+                        queueItemEl.className = 'queue-item';
+                        queueItemEl.textContent = item;
+                        queueDisplay.appendChild(queueItemEl);
+                    });
+
+                    outputOrderElement.textContent = order.join(' → ');
+                    await sleep(1000);
+
+                    for (const y of adj[x]) {
+                        in_deg[y]--;
+                        const inDegEl = document.getElementById(`in-degree-${y}`);
+                        if (inDegEl) {
+                            inDegEl.textContent = in_deg[y];
+                        }
+
+                        if (in_deg[y] === 0) {
+                            q.push(y);
+                            q.sort();
+                            document.getElementById(`node-${y}`).classList.add('highlight');
+                        }
+                    }
+
+                    queueDisplay.innerHTML = '';
+                    q.forEach(item => {
+                        const queueItemEl = document.createElement('div');
+                        queueItemEl.className = 'queue-item';
+                        queueItemEl.textContent = item;
+                        queueDisplay.appendChild(queueItemEl);
+                    });
+                    
+                    await sleep(1500);
+                }
+                
+                if (order.length < courses.length) {
+                    outputOrderElement.textContent = "IMPOSSIBLE (사이클이 존재합니다)";
+                    outputOrderElement.classList.add('text-red-500');
+                }
+            };
+            
+            const initialize = () => {
+                drawGraph(false);
+                outputOrderElement.textContent = '';
+                outputOrderElement.classList.remove('text-red-500');
+
+                const adj = {};
+                const in_deg = {};
+                courses.forEach(c => {
+                    adj[c] = [];
+                    in_deg[c] = 0;
+                });
+
+                for (const [u, v] of edges) {
+                    adj[u].push(v);
+                    in_deg[v]++;
+                }
+                const order = [];
+                let q = [];
+                for (const course of courses) {
+                    if (in_deg[course] === 0) {
+                        q.push(course);
+                    }
+                }
+                q.sort();
+                while (q.length > 0) {
+                    const x = q.shift();
+                    order.push(x);
+                    for (const y of adj[x]) {
+                        in_deg[y]--;
+                        if (in_deg[y] === 0) {
+                            q.push(y);
+                            q.sort();
+                        }
+                    }
+                }
+                
+                if (order.length < courses.length) {
+                    outputOrderElement.textContent = "IMPOSSIBLE (사이클이 존재합니다)";
+                    outputOrderElement.classList.add('text-red-500');
+                } else {
+                    outputOrderElement.textContent = order.join(' → ');
+                }
+                
+                queueDisplay.innerHTML = '';
+                drawGraph(true);
+                for (const course of courses) {
+                    const in_deg_count = edges.filter(([u, v_target]) => v_target === course).length;
+                    document.getElementById(`in-degree-${course}`).textContent = in_deg_count;
+                }
+            };
+
+            initialize();
+
+            startButton.addEventListener('click', () => {
+                startButton.disabled = true;
+                runTopologicalSort().finally(() => {
+                    startButton.disabled = false;
+                });
+            });
+            resetButton.addEventListener('click', initialize);
+        });
+    </script>
+</body>
+</html>

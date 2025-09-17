@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>파이썬 알고리즘 교재 시뮬레이션</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #111827;
+        }
+        .header p {
+            font-size: 1.125rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #3b82f6;
+            padding-left: 1rem;
+        }
+        .simulation-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+        .simulation-item {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        .simulation-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .simulation-item h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        .simulation-item p {
+            font-size: 1rem;
+            color: #6b7280;
+        }
+        .simulation-item a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .simulation-item a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <h1>파이썬 알고리즘 교재 시뮬레이션</h1>
+            <p>파이썬 알고리즘 교재의 위상 정렬 시뮬레이션 페이지 모음입니다. 항목을 클릭하여 자세한 내용을 확인하세요.</p>
+        </header>
+
+        <section>
+            <h2 class="section-title">위상 정렬의 기본 개념</h2>
+            <div class="simulation-list">
+                <div class="simulation-item">
+                    <h3>과목 순서 정하기 시뮬레이션</h3>
+                    <p>위상 정렬을 이용하여 선수 과목 관계를 고려한 과목 수강 순서를 시뮬레이션합니다.</p>
+                    <a href="ch8_2생각다지기8_등수찾기n등산마니아_감각잡기.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>샌드위치 가게 시뮬레이터</h3>
+                    <p>'지금 바로 시작할 수 있는 일(진입 차수 0)'을 찾는 과정을 시뮬레이션합니다.</p>
+                    <a href="ch8_5스스로해결하기2_샌드위치가게.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-8 border-t-2 border-gray-200">
+
+        <section>
+            <h2 class="section-title">위상 정렬 알고리즘 심화</h2>
+            <div class="simulation-list">
+                <div class="simulation-item">
+                    <h3>기본 위상 정렬 시뮬레이터</h3>
+                    <p>가장 기본적인 위상 정렬 알고리즘의 동작 과정을 시각화합니다.</p>
+                    <a href="ch8_3정리하기1_기본위상정렬.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>작은 번호 먼저: 사전식 위상 정렬 시뮬레이터</h3>
+                    <p>큐 대신 최소 힙(Min-Heap)을 사용하여 사전식으로 가장 빠른 순서를 찾는 과정을 시뮬레이션합니다.</p>
+                    <a href="ch8_3정리하기2_작은 번호 먼저_사전식 위상정렬.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>일반 큐를 사용한 위상 정렬 시뮬레이터</h3>
+                    <p>기본 큐를 사용하여 위상 정렬을 수행하고 그 과정을 보여줍니다.</p>
+                    <a href="ch8_3정리하기3_.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>최소 학기 계산 위상 정렬 시뮬레이션</h3>
+                    <p>각 과목을 수강하는 데 필요한 최소 학기를 계산하는 위상 정렬 과정을 시뮬레이션합니다.</p>
+                    <a href="ch8_3정리하기4_.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>유일 위상 정렬 판정 시뮬레이터</h3>
+                    <p>위상 정렬 순서가 유일한지, 모호한지(AMBIGUOUS)를 판별하는 과정을 보여줍니다.</p>
+                    <a href="ch8_3정리하기5_정답이 딱 하나_유일 위상정렬 판정.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>위상 정렬 시뮬레이터 (예제 A, B 로드)</h3>
+                    <p>미리 정의된 예제 A와 B를 로드하여 위상 정렬의 성공과 실패(사이클) 케이스를 보여줍니다.</p>
+                    <a href="ch8_4도전하기2_.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>축제 준비 "전체 순서" 만들기</h3>
+                    <p>축제 준비 과정의 선행 관계를 위상 정렬로 풀어내는 시뮬레이션입니다.</p>
+                    <a href="ch8_5스스로해결하기1_축제준비.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+</body>
+</html>

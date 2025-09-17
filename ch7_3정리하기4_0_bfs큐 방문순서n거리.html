@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BFS 그래프 시각화</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 2rem;
+            background-color: #2d3748;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .text-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #4a5568;
+            border-radius: 0.75rem;
+            text-align: left;
+            width: 100%;
+        }
+        .graph-area {
+            position: relative;
+            width: 100%;
+            min-height: 400px;
+        }
+        .node {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background-color: #4299e1;
+            border: 2px solid #2b6cb0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.5s ease;
+        }
+        .node.visited {
+            background-color: #48bb78;
+        }
+        .edge {
+            position: absolute;
+            height: 2px;
+            background-color: #a0aec0;
+            transform-origin: left center;
+        }
+        .queue-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            min-height: 50px;
+            background-color: #3b4252;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        .queue-item {
+            width: 50px;
+            height: 50px;
+            background-color: #63b3ed;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-3xl font-bold mb-4">BFS 그래프 시각화</h1>
+    <p class="text-lg text-gray-400">너비 우선 탐색(BFS) 알고리즘이 그래프를 탐색하는 과정을 시각화합니다.</p>
+
+    <div class="graph-area">
+        <!-- Node Positions -->
+        <div id="node-A" class="node" style="top: 50px; left: 15%;">A</div>
+        <div id="node-B" class="node" style="top: 50px; left: 80%;">B</div>
+        <div id="node-C" class="node" style="top: 200px; left: 25%;">C</div>
+        <div id="node-D" class="node" style="top: 200px; left: 70%;">D</div>
+    </div>
+    
+    <div class="text-section">
+        <h2 class="text-xl font-bold mb-2">큐(Queue) 상태</h2>
+        <div id="queue-display" class="queue-area"></div>
+    </div>
+
+    <div class="text-section">
+        <h2 class="text-xl font-bold mb-2">탐색 결과</h2>
+        <div id="log-display" class="mt-4 text-gray-200 text-left"></div>
+        <div id="result-display" class="mt-4 text-xl font-bold text-green-300"></div>
+    </div>
+</div>
+
+<script>
+    const graph = {
+        "A": ["B", "C"],
+        "B": ["A", "D"],
+        "C": ["A", "D"],
+        "D": ["B", "C"]
+    };
+
+    const nodePositions = {
+        "A": { top: "50px", left: "15%" },
+        "B": { top: "50px", left: "80%" },
+        "C": { top: "200px", left: "25%" },
+        "D": { top: "200px", left: "70%" }
+    };
+
+    function drawGraph() {
+        const graphArea = document.querySelector('.graph-area');
+        const nodeElements = {
+            "A": document.getElementById('node-A'),
+            "B": document.getElementById('node-B'),
+            "C": document.getElementById('node-C'),
+            "D": document.getElementById('node-D')
+        };
+        const graphAreaRect = graphArea.getBoundingClientRect();
+
+        const edges = [["A", "B"], ["A", "C"], ["B", "D"], ["C", "D"]];
+        edges.forEach(([a, b]) => {
+            const posA = {
+                x: nodeElements[a].offsetLeft + nodeElements[a].offsetWidth / 2,
+                y: nodeElements[a].offsetTop + nodeElements[a].offsetHeight / 2
+            };
+            const posB = {
+                x: nodeElements[b].offsetLeft + nodeElements[b].offsetWidth / 2,
+                y: nodeElements[b].offsetTop + nodeElements[b].offsetHeight / 2
+            };
+            
+            const dx = posB.x - posA.x;
+            const dy = posB.y - posA.y;
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            const edgeDiv = document.createElement('div');
+            edgeDiv.classList.add('edge');
+            edgeDiv.style.width = `${distance}px`;
+            edgeDiv.style.transform = `rotate(${angle}deg)`;
+            edgeDiv.style.top = `${posA.y}px`;
+            edgeDiv.style.left = `${posA.x}px`;
+            graphArea.appendChild(edgeDiv);
+        });
+    }
+
+    function updateQueueDisplay(q) {
+        const queueDisplay = document.getElementById('queue-display');
+        queueDisplay.innerHTML = '';
+        q.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'queue-item';
+            itemDiv.textContent = item;
+            queueDisplay.appendChild(itemDiv);
+        });
+    }
+
+    async function bfs_all(start) {
+        const q = [start];
+        const visited = new Set([start]);
+        const dist = { [start]: 0 };
+        const order = [];
+        
+        const logDisplay = document.getElementById('log-display');
+        const resultDisplay = document.getElementById('result-display');
+
+        logDisplay.innerHTML = `<p><strong>시작 노드: ${start}</strong></p>`;
+        
+        document.getElementById(`node-${start}`).classList.add('visited');
+        updateQueueDisplay(q);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        while (q.length > 0) {
+            const v = q.shift();
+            order.push(v);
+            logDisplay.innerHTML += `<p><strong>${v}</strong> 탐색 시작, 큐에서 제거</p>`;
+            updateQueueDisplay(q);
+            
+            for (const nv of graph[v]) {
+                if (!visited.has(nv)) {
+                    visited.add(nv);
+                    dist[nv] = dist[v] + 1;
+                    q.push(nv);
+                    document.getElementById(`node-${nv}`).classList.add('visited');
+                    logDisplay.innerHTML += `<p>  -> 이웃 노드 <strong>${nv}</strong> 방문 및 큐에 추가 (거리: ${dist[nv]})</p>`;
+                    updateQueueDisplay(q);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+            }
+        }
+
+        resultDisplay.innerHTML = `순서: ${JSON.stringify(order)}<br>거리: ${JSON.stringify(dist)}`;
+    }
+
+    window.onload = function() {
+        drawGraph();
+        bfs_all("A");
+    };
+</script>
+
+</body>
+</html>

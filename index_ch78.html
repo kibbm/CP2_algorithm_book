@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>파이썬 알고리즘 교재 시뮬레이션</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #111827;
+        }
+        .header p {
+            font-size: 1.125rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #3b82f6;
+            padding-left: 1rem;
+        }
+        .simulation-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+        .simulation-item {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        .simulation-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .simulation-item h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        .simulation-item p {
+            font-size: 1rem;
+            color: #6b7280;
+        }
+        .simulation-item a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .simulation-item a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <h1>파이썬 알고리즘 교재 시뮬레이션</h1>
+            <p>파이썬 알고리즘 교재의 DFS/BFS탐색, 위상 정렬 시뮬레이션 페이지 모음입니다. 항목을 클릭하여 자세한 내용을 확인하세요.</p>
+        </header>
+
+        <section>
+            <h2 class="section-title">ch7_DFS/BFS탐색</h2>
+            <div class="simulation-list">
+
+                <div class="simulation-item">
+                    <h3>ch7_2생각다지기3</h3>
+                    <p>3_DFS갈수있나</p>
+                    <a href="ch7_2생각다지기3_DFS갈수있나.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>ch7_2생각다지기4</h3>
+                    <p>4_BFS 격자 미로 시각화</p>
+                    <a href="ch7_2생각다지기4_BFS 격자 미로 시각화.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>ch7_2생각다지기6</h3>
+                    <p>6_도달가능</p>
+                    <a href="ch7_2생각다지기6_도달가능.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+<!--정리하기-->
+                <div class="simulation-item">
+                    <h3>ch7_3정리하기1</h3>
+                    <p>1_이웃수세기</p>
+                    <a href="ch7_3정리하기1_이웃수세기.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>ch7_3정리하기2</h3>
+                    <p>2_인접리스트만들기</p>
+                    <a href="ch7_3정리하기2_인접리스트만들기.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <!---->
+                <div class="simulation-item">
+                    <h3>ch7_3정리하기3</h3>
+                    <p>3_dfs방문순서</p>
+                    <a href="ch7_3정리하기3_dfs방문순서.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>ch7_3정리하기4_0</h3>
+                    <p>4_0_bfs큐 방문순서n거리</p>
+                    <a href="ch7_3정리하기4_0_bfs큐 방문순서n거리.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>ch7_3정리하기4_1</h3>
+                    <p>4_1stack시각화</p>
+                    <a href="ch7_3정리하기4_1stack시각화.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>ch7_3정리하기4_2</h3>
+                    <p>4_2queue시각화</p>
+                    <a href="ch7_3정리하기4_2queue시각화.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-8 border-t-2 border-gray-200">
+
+        <section>
+            <h2 class="section-title">ch8_위상정렬/그래프 응용</h2>
+            <div class="simulation-list">
+                <div class="simulation-item">
+                    <h3>ch8_1생각열기</h3>
+                    <p>로봇심부름순서</p>
+                    <a href="ch8_1생각열기_로봇심부름순서.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a> 
+                </div>
+                <div class="simulation-item">
+                    <h3>ch8_2생각다지기1</h3>
+                    <p>1_축제준비</p>
+                    <a href="ch8_2생각다지기1_축제준비.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a> 
+                </div>
+                <div class="simulation-item">
+                    <h3>ch8_2생각다지기2</h3>
+                    <p>2_샌드위치</p>
+                    <a href="ch8_2생각다지기2_샌드위치.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a> 
+                </div>
+                <!---->
+                          <div class="simulation-item">
+                    <h3>ch8_2생각다지기3</h3>
+                    <p>3_indergree배열로진입차수(숫자)</p>
+                    <a href="ch8_2생각다지기3_indergree배열로진입차수(숫자).html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a> 
+                </div>
+                <div class="simulation-item">
+                    <h3>ch8_2생각다지기4</h3>
+                    <p>4_indegree배열로(딕셔너리)</p>
+                    <a href="ch8_2생각다지기4_indegree배열로(딕셔너리).html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a> 
+                </div>
+                <div class="simulation-item">
+                    <h3>ch8_2생각다지기5</h3>
+                    <p>5_진입차수 계산→큐 삽입 순서 파악(로그 보기)</p>
+                    <a href="ch8_2생각다지기5_진입차수 계산→큐 삽입 순서 파악(로그 보기).html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a> 
+                </div>
+                <div class="simulation-item">
+                    <h3>ch8_2생각다지기6</h3>
+                    <p>6_큐로 순서 만들기 + 사이클(모순) 감지</p>
+                    <a href="ch8_2생각다지기6_큐로 순서 만들기 + 사이클(모순) 감지.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a> 
+                </div>
+
+                <div class="simulation-item">
+                    <h3>ch8_2생각다지기7</h3>
+                    <p>7_활용 예제-선수 과목 시간표</p>
+                    <a href="ch8_2생각다지기7_활용 예제-선수 과목 시간표.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a> 
+                </div>
+                <div class="simulation-item">
+                    <h3>ch8_2생각다지기8</h3>
+                    <p>8_등수찾기n등산마니아_감각잡기</p>
+                    <a href="ch8_2생각다지기8_등수찾기n등산마니아_감각잡기.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a> 
+                </div>
+                <!---->
+                <div class="simulation-item">
+                    <h3>ch8_3정리하기1</h3>
+                    <p>1_기본위상정렬</p>
+                    <a href="ch8_3정리하기1_기본위상정렬.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a> 
+                </div>
+                <div class="simulation-item">
+                    <h3>ch8_3정리하기2</h3>
+                    <p>2_작은 번호 먼저_사전식 위상정렬</p>
+                    <a href="ch8_3정리하기2_작은 번호 먼저_사전식 위상정렬.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a> 
+                </div>
+
+                <div class="simulation-item">
+                    <h3>ch8_3정리하기3</h3><!--ch8_3정리하기3_.html-->
+                    <p>3_못 끝내면 사이클_불가능 판정</p>
+                    <a href="ch8_3정리하기3_못 끝내면 사이클_불가능 판정(after).html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>ch8_3정리하기4</h3><!--ch8_3정리하기4_.html-->
+                    <p>4_학기별로 척척_레벨만들기(after)</p>
+                    <a href="ch8_3정리하기4_학기별로 척척_레벨만들기(after).html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>ch8_3정리하기5</h3>
+                    <p>5_정답이 딱 하나_유일 위상정렬 판정</p>
+                    <a href="ch8_3정리하기5_정답이 딱 하나_유일 위상정렬 판정.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>ch8_4도전하기1</h3> <!--ch8_4도전하기1_.html-->
+                    <p>1_작은 번호 먼저</p>
+                    <a href="ch8_4도전하기1_작은 번호 먼저(after).html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+
+                <div class="simulation-item">
+                    <h3>ch8_4도전하기2</h3> <!--ch8_4도전하기2_.html-->
+                    <p>2_정답이 하나</p>
+                    <a href="ch8_4도전하기2_정답이 하나(after).html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>ch8_5스스로해결하기1</h3>
+                    <p>1_축제준비</p>
+                    <a href="ch8_5스스로해결하기1_축제준비.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>ch8_4도전하기1</h3>
+                    <p>1_작은 번호 먼저</p>
+                    <a href="ch8_4도전하기1_.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+
+                <div class="simulation-item">
+                    <h3>ch8_4도전하기2</h3>
+                    <p>2_정답이 하나</p>
+                    <a href="ch8_4도전하기2_.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>ch8_5스스로해결하기1</h3>
+                    <p>1_축제준비</p>
+                    <a href="ch8_5스스로해결하기1_축제준비.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <!---->
+                <div class="simulation-item">
+                    <h3>ch8_5스스로해결하기2</h3>
+                    <p>2_샌드위치가게</p>
+                    <a href="ch8_5스스로해결하기2_샌드위치가게.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+
+                <div class="simulation-item">
+                    <h3>ch8_스스로해결하기3</h3>
+                    <p>3_놀이공원</p>
+                    <a href="ch8_스스로해결하기3_놀이공원.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+                <div class="simulation-item">
+                    <h3>ch8_스스로해결하기5</h3>
+                    <p>5_교내 리그 등수</p>
+                    <a href="ch8_스스로해결하기5_교내 리그 등수.html" class="mt-2 inline-block">시뮬레이션 보기 &rarr;</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+</body>
+</html>

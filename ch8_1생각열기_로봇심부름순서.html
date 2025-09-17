@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>심부름 순서 정하기 게임</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 2rem;
+        }
+        .node {
+            width: 50px;
+            height: 50px;
+            border-radius: 9999px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+        .node-default {
+            background-color: #e5e7eb;
+            color: #4b5563;
+            border: 2px solid #d1d5db;
+        }
+        .node-queue {
+            background-color: #3b82f6;
+            color: #ffffff;
+            border: 2px solid #2563eb;
+            transform: scale(1.1);
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.4);
+        }
+        .node-processed {
+            background-color: #10b981;
+            color: #ffffff;
+            border: 2px solid #059669;
+        }
+        .node-ambiguous {
+            background-color: #fcd34d;
+            color: #ffffff;
+            border: 2px solid #fbbf24;
+        }
+        .edge {
+            stroke: #4b5563;
+            stroke-width: 2;
+            fill: none;
+            marker-end: url(#arrowhead);
+            transition: stroke 0.3s ease-in-out;
+        }
+        .edge-active {
+            stroke: #ef4444;
+            stroke-width: 3;
+        }
+        #result-text {
+            white-space: pre-wrap;
+        }
+        .step-info {
+            background-color: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+            min-height: 120px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+<div class="container bg-white rounded-xl shadow-lg p-8">
+    <h1 class="text-3xl font-bold text-gray-800 text-center mb-6">심부름 순서 정하기 게임</h1>
+    <p class="text-center text-gray-600 mb-8">
+        로봇 '로비'가 심부름을 완료하는 전체 순서(위상 정렬)를 시뮬레이션하세요.
+    </p>
+
+    <div class="grid md:grid-cols-2 gap-8 mb-8">
+        <div>
+            <div class="mb-4">
+                <label for="N-input" class="block text-gray-700 font-medium mb-2">N (심부름 개수)</label>
+                <input type="number" id="N-input" value="5" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div class="mb-4">
+                <label for="edges-input" class="block text-gray-700 font-medium mb-2">
+                    간선 (edges)
+                    <span class="text-sm text-gray-500 block">형식: (1,3), (2,3), (3,4), (4,5)</span>
+                </label>
+                <input type="text" id="edges-input" value="(1,3),(2,3),(3,4),(4,5)" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div class="flex space-x-4 mb-6">
+                <button onclick="runSimulation()" class="flex-1 bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out shadow-md">시뮬레이션 시작</button>
+                <button onclick="resetSimulation()" class="bg-gray-400 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-500 transition duration-300 ease-in-out shadow-md">초기화</button>
+            </div>
+        </div>
+
+        <div>
+            <div class="step-info">
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">단계 정보</h3>
+                <p id="step-description" class="text-gray-700"></p>
+            </div>
+            <div class="mt-4 flex space-x-2">
+                <button id="prev-step-btn" onclick="prevStep()" class="flex-1 bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400 transition duration-300 ease-in-out shadow-md" disabled>이전 단계</button>
+                <button id="next-step-btn" onclick="nextStep()" class="flex-1 bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-600 transition duration-300 ease-in-out shadow-md" disabled>다음 단계</button>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">최종 결과</h3>
+                <p id="result-text" class="text-gray-700 font-mono bg-gray-50 p-4 rounded-lg border border-gray-200"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graph Visualization -->
+    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-inner">
+        <h2 class="text-2xl font-semibold text-center text-gray-800 mb-4">그래프 시각화</h2>
+        <svg id="graph-svg" class="w-full h-[400px] bg-white rounded-lg border border-gray-200"></svg>
+    </div>
+</div>
+
+<script>
+    const NInput = document.getElementById('N-input');
+    const edgesInput = document.getElementById('edges-input');
+    const stepDescription = document.getElementById('step-description');
+    const resultText = document.getElementById('result-text');
+    const prevStepBtn = document.getElementById('prev-step-btn');
+    const nextStepBtn = document.getElementById('next-step-btn');
+    const svg = document.getElementById('graph-svg');
+
+    let N, edges;
+    let graph, indegree;
+    let queue, order;
+    let steps;
+    let currentStep;
+
+    let nodePositions = {};
+    let nodeElements = {};
+    let edgeElements = {};
+
+    function parseEdges(edgesStr) {
+        if (!edgesStr) return [];
+        const regex = /\((\d+),(\d+)\)/g;
+        const result = [];
+        let match;
+        while ((match = regex.exec(edgesStr)) !== null) {
+            result.push([parseInt(match[1]), parseInt(match[2])]);
+        }
+        return result;
+    }
+
+    function initializeGraph() {
+        N = parseInt(NInput.value);
+        edges = parseEdges(edgesInput.value);
+
+        graph = Array.from({ length: N + 1 }, () => []);
+        indegree = Array(N + 1).fill(0);
+
+        edges.forEach(([u, v]) => {
+            if (u > 0 && u <= N && v > 0 && v <= N) {
+                graph[u].push(v);
+                indegree[v]++;
+            }
+        });
+    }
+
+    function createGraphElements() {
+        svg.innerHTML = `
+            <defs>
+                <marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#4b5563" />
+                </marker>
+                <marker id="arrowhead-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
+                </marker>
+            </defs>
+        `;
+
+        const width = svg.clientWidth;
+        const height = svg.clientHeight;
+        const center = { x: width / 2, y: height / 2 };
+        const radius = Math.min(width, height) / 2.5;
+
+        nodePositions = {};
+        nodeElements = {};
+        edgeElements = {};
+
+        // 노드 위치 계산
+        for (let i = 1; i <= N; i++) {
+            const angle = (2 * Math.PI / N) * (i - 1);
+            nodePositions[i] = {
+                x: center.x + radius * Math.cos(angle),
+                y: center.y + radius * Math.sin(angle)
+            };
+        }
+
+        // 간선 그리기
+        edges.forEach(([u, v]) => {
+            const edgePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const start = nodePositions[u];
+            const end = nodePositions[v];
+            
+            const dx = end.x - start.x;
+            const dy = end.y - start.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const unitVx = dx / dist;
+            const unitVy = dy / dist;
+
+            const offset = 25; // 노드 반지름
+            const newStart = { x: start.x + unitVx * offset, y: start.y + unitVy * offset };
+            const newEnd = { x: end.x - unitVx * offset, y: end.y - unitVy * offset };
+
+            let pathData = `M ${newStart.x} ${newStart.y} L ${newEnd.x} ${newEnd.y}`;
+            edgePath.setAttribute('d', pathData);
+            edgePath.setAttribute('class', 'edge');
+            edgePath.setAttribute('id', `edge-${u}-${v}`);
+            svg.appendChild(edgePath);
+            edgeElements[`${u}-${v}`] = edgePath;
+        });
+
+        // 노드 그리기
+        for (let i = 1; i <= N; i++) {
+            const nodeG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            const pos = nodePositions[i];
+            if (pos) {
+                nodeG.setAttribute('transform', `translate(${pos.x}, ${pos.y})`);
+                nodeG.setAttribute('class', 'node node-default');
+
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('r', 25);
+                circle.setAttribute('fill', '#e5e7eb');
+                circle.setAttribute('stroke', '#d1d5db');
+                circle.setAttribute('stroke-width', '2');
+                nodeG.appendChild(circle);
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('alignment-baseline', 'middle');
+                text.setAttribute('font-size', '1.5rem');
+                text.setAttribute('font-weight', '600');
+                text.setAttribute('fill', '#4b5563');
+                text.textContent = i;
+                nodeG.appendChild(text);
+
+                svg.appendChild(nodeG);
+                nodeElements[i] = nodeG;
+            }
+        }
+    }
+
+    function runSimulation() {
+        try {
+            resetSimulation();
+            initializeGraph();
+            createGraphElements();
+
+            queue = [];
+            order = [];
+            steps = [];
+
+            // 초기 큐 설정
+            for (let i = 1; i <= N; i++) {
+                if (indegree[i] === 0) {
+                    queue.push(i);
+                }
+            }
+
+            steps.push({
+                type: 'initial',
+                description: `진입 차수가 0인 심부름(노드)들을 큐에 넣습니다: [${queue.join(', ')}]`,
+                queue: [...queue],
+                order: [],
+                indegree: [...indegree]
+            });
+
+            while (queue.length > 0) {
+                const node = queue.shift();
+                order.push(node);
+
+                steps.push({
+                    type: 'process',
+                    description: `큐에서 심부름 ${node}을(를) 꺼내 처리하고 순서에 기록합니다.`,
+                    node: node,
+                    queue: [...queue],
+                    order: [...order],
+                    indegree: [...indegree]
+                });
+
+                if (graph[node]) {
+                    for (const neighbor of graph[node]) {
+                        indegree[neighbor]--;
+                        
+                        steps.push({
+                            type: 'edge-update',
+                            description: `심부름 ${node}가 끝나, 다음 심부름 ${neighbor}의 진입 차수를 1 감소시킵니다. (현재 진입 차수: ${indegree[neighbor]})`,
+                            node: node,
+                            neighbor: neighbor,
+                            queue: [...queue],
+                            order: [...order],
+                            indegree: [...indegree]
+                        });
+
+                        if (indegree[neighbor] === 0) {
+                            queue.push(neighbor);
+                            steps.push({
+                                type: 'queue-add',
+                                description: `심부름 ${neighbor}의 진입 차수가 0이 되어, 이제 바로 시작 가능하므로 큐에 넣습니다.`,
+                                node: node,
+                                neighbor: neighbor,
+                                queue: [...queue],
+                                order: [...order],
+                                indegree: [...indegree]
+                            });
+                        }
+                    }
+                }
+            }
+
+            // 최종 결과 단계
+            if (order.length < N) {
+                steps.push({
+                    type: 'final-impossible',
+                    description: `위상 정렬 결과의 길이가 N보다 작습니다. 심부름들 사이에 순환(사이클)이 존재하여 전체 순서를 만드는 것이 불가능합니다.`,
+                    order: [...order],
+                });
+                resultText.textContent = `IMPOSSIBLE`;
+            } else {
+                steps.push({
+                    type: 'final-success',
+                    description: `성공적으로 심부름 순서가 정해졌습니다.`,
+                    order: [...order],
+                });
+                resultText.textContent = `순서: ${order.join(', ')}`;
+            }
+
+            currentStep = -1;
+            nextStep();
+            prevStepBtn.disabled = true;
+            nextStepBtn.disabled = false;
+        } catch (e) {
+            console.error("An error occurred during simulation:", e);
+            stepDescription.textContent = `오류 발생: ${e.message}. 콘솔을 확인해주세요.`;
+            resultText.textContent = `시뮬레이션 중 오류가 발생했습니다.`;
+        }
+    }
+
+    function resetSimulation() {
+        svg.innerHTML = '';
+        stepDescription.textContent = '시뮬레이션을 시작하려면 버튼을 클릭하세요.';
+        resultText.textContent = '아직 결과가 없습니다.';
+        prevStepBtn.disabled = true;
+        nextStepBtn.disabled = true;
+        currentStep = -1;
+        nodePositions = {};
+        nodeElements = {};
+        edgeElements = {};
+    }
+    
+    function updateVisualization() {
+        if (currentStep < 0 || currentStep >= steps.length) return;
+
+        const step = steps[currentStep];
+
+        // 노드 및 간선 초기 상태
+        for (let i = 1; i <= N; i++) {
+            if (nodeElements[i]) {
+                nodeElements[i].setAttribute('class', 'node node-default');
+            }
+        }
+        for (const key in edgeElements) {
+            if (edgeElements[key]) {
+                 edgeElements[key].setAttribute('class', 'edge');
+                 edgeElements[key].setAttribute('marker-end', 'url(#arrowhead)');
+            }
+        }
+
+        // 진입 차수 텍스트 업데이트
+        const indegreeTexts = document.querySelectorAll('.indegree-text');
+        indegreeTexts.forEach(el => el.remove());
+        
+        for (let i = 1; i <= N; i++) {
+            const indegreeValue = step.indegree[i];
+            if (nodePositions[i]) {
+                const pos = nodePositions[i];
+                const textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                textEl.setAttribute('x', pos.x + 30);
+                textEl.setAttribute('y', pos.y);
+                textEl.setAttribute('class', 'indegree-text text-sm fill-gray-600');
+                textEl.textContent = `indeg: ${indegreeValue}`;
+                svg.appendChild(textEl);
+            }
+        }
+
+        // 단계별 시각화 업데이트
+        stepDescription.textContent = step.description;
+
+        if (step.type === 'initial' || step.type === 'queue-add') {
+            step.queue.forEach(node => {
+                if (nodeElements[node]) {
+                    nodeElements[node].setAttribute('class', 'node node-queue');
+                }
+            });
+        }
+        
+        step.order.forEach(node => {
+            if (nodeElements[node]) {
+                nodeElements[node].setAttribute('class', 'node node-processed');
+            }
+        });
+        
+        if (step.type === 'edge-update' && edgeElements[`${step.node}-${step.neighbor}`]) {
+            edgeElements[`${step.node}-${step.neighbor}`].setAttribute('class', 'edge edge-active');
+            edgeElements[`${step.node}-${step.neighbor}`].setAttribute('marker-end', 'url(#arrowhead-active)');
+        }
+    }
+
+    function nextStep() {
+        if (currentStep < steps.length - 1) {
+            currentStep++;
+            updateVisualization();
+            prevStepBtn.disabled = false;
+        }
+        if (currentStep === steps.length - 1) {
+            nextStepBtn.disabled = true;
+        }
+    }
+
+    function prevStep() {
+        if (currentStep > 0) {
+            currentStep--;
+            updateVisualization();
+            nextStepBtn.disabled = false;
+        }
+        if (currentStep === 0) {
+            prevStepBtn.disabled = true;
+        }
+    }
+
+    window.onload = resetSimulation;
+
+</script>
+
+</body>
+</html>

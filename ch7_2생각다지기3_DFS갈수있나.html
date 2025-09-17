@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DFS 그래프 시각화</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 2rem;
+            background-color: #2d3748;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .node-circle {
+            transition: all 0.5s ease-in-out;
+            stroke-width: 3;
+            stroke: #cbd5e0;
+        }
+        .node-text {
+            font-size: 1.25rem;
+            font-weight: bold;
+            fill: #e2e8f0;
+        }
+        .link-line {
+            stroke: #4a5568;
+            stroke-width: 2;
+        }
+        .node-visited {
+            fill: #38a169;
+            stroke: #38a169;
+        }
+        .text-section {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: #4a5568;
+            border-radius: 0.75rem;
+            text-align: left;
+        }
+        pre {
+            background-color: #2d3748;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-3xl font-bold mb-4">DFS 그래프 시각화</h1>
+    <p class="text-lg text-gray-400">깊이 우선 탐색(DFS) 알고리즘이 그래프를 탐색하는 과정을 보여줍니다.</p>
+    
+    <div class="flex justify-center my-8">
+        <svg id="graph-svg" width="600" height="400" viewBox="0 0 600 400"></svg>
+    </div>
+
+    <div class="text-section mt-8">
+        <h2 class="text-xl font-bold mb-2">중간 과정</h2>
+        <pre><code id="result-code">[False, False, False, False, False]</code></pre>
+    </div>
+
+    <div class="text-section mt-4">
+        <h2 class="text-xl font-bold mb-2">최종 결과</h2>
+        <pre><code id="final-result-code"></code></pre>
+    </div>
+</div>
+
+<script>
+    const g = [[2,3],[1,4],[1,5],[2],[3]];
+    const visited = new Array(5).fill(false);
+    const nodes = [
+        { id: 1, x: 150, y: 100 },
+        { id: 2, x: 450, y: 100 },
+        { id: 3, x: 150, y: 300 },
+        { id: 4, x: 450, y: 300 },
+        { id: 5, x: 300, y: 200 }
+    ];
+
+    const svg = document.getElementById('graph-svg');
+    const resultDisplay = document.getElementById('result-code');
+    const finalResultDisplay = document.getElementById('final-result-code');
+
+    function updateDisplay(message) {
+        resultDisplay.textContent = message;
+    }
+
+    function drawGraph() {
+        const links = [
+            [1, 2], [1, 3],
+            [2, 1], [2, 4],
+            [3, 1], [3, 5],
+            [4, 2],
+            [5, 3]
+        ];
+
+        links.forEach(([source, target]) => {
+            const sourceNode = nodes.find(n => n.id === source);
+            const targetNode = nodes.find(n => n.id === target);
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', sourceNode.x);
+            line.setAttribute('y1', sourceNode.y);
+            line.setAttribute('x2', targetNode.x);
+            line.setAttribute('y2', targetNode.y);
+            line.classList.add('link-line');
+            svg.appendChild(line);
+        });
+
+        nodes.forEach(node => {
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', node.x);
+            circle.setAttribute('cy', node.y);
+            circle.setAttribute('r', 30);
+            circle.setAttribute('id', `node-${node.id}`);
+            circle.classList.add('node-circle');
+            
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', node.x);
+            text.setAttribute('y', node.y + 5);
+            text.setAttribute('text-anchor', 'middle');
+            text.textContent = node.id;
+            text.classList.add('node-text');
+
+            svg.appendChild(circle);
+            svg.appendChild(text);
+        });
+    }
+
+    async function dfs(x) {
+        const nodeIndex = x - 1;
+        if (visited[nodeIndex]) {
+            return;
+        }
+        
+        visited[nodeIndex] = true;
+        const currentNodeElement = document.getElementById(`node-${x}`);
+        currentNodeElement.classList.add('node-visited');
+        updateDisplay(`방문 중: 정점 ${x} - ${JSON.stringify(visited)}`);
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        for (const nextNode of g[nodeIndex]) {
+            if (!visited[nextNode - 1]) {
+                await dfs(nextNode);
+            }
+        }
+    }
+
+    drawGraph();
+    
+    window.onload = async function() {
+        await dfs(1);
+        finalResultDisplay.textContent = JSON.stringify(visited);
+        updateDisplay("탐색 완료!");
+    };
+
+</script>
+
+</body>
+</html>

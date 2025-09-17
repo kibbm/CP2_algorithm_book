@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>큐 시각화</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 2rem;
+            background-color: #2d3748;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .visual-area {
+            height: 100px;
+            width: 80%;
+            background-color: #4a5568;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+        .item {
+            width: 80px;
+            height: 80px;
+            background-color: #4299e1;
+            border: 2px solid #2b6cb0;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #fff;
+            transform: scale(0);
+            animation: pop-in 0.3s forwards;
+            opacity: 0;
+            transition: all 0.3s ease-in-out;
+        }
+        .text-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #4a5568;
+            border-radius: 0.75rem;
+            text-align: left;
+            width: 100%;
+        }
+        @keyframes pop-in {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-3xl font-bold mb-4">큐 시각화</h1>
+    <p class="text-lg text-gray-400">먼저 넣은 것이 먼저 나오는 **큐**의 동작을 보여줍니다.</p>
+
+    <div class="visual-area" id="queue-area"></div>
+
+    <div class="text-section">
+        <h2 class="text-xl font-bold mb-2">코드 실행 과정</h2>
+        <div id="log-display" class="mt-4 text-gray-200 text-left"></div>
+        <div id="result-display" class="mt-4 text-xl font-bold text-green-300"></div>
+    </div>
+</div>
+
+<script>
+    const q = [];
+    const queueArea = document.getElementById('queue-area');
+    const logDisplay = document.getElementById('log-display');
+    const resultDisplay = document.getElementById('result-display');
+
+    function appendItem(item) {
+        return new Promise(resolve => {
+            logDisplay.innerHTML += `<p>큐에 **'${item}'** 추가</p>`;
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'item';
+            itemDiv.textContent = item;
+            itemDiv.dataset.value = item;
+            queueArea.appendChild(itemDiv);
+            q.push(item);
+            setTimeout(resolve, 1000);
+        });
+    }
+
+    function popLeftItem() {
+        return new Promise(resolve => {
+            logDisplay.innerHTML += `<p>큐에서 **'${q[0]}'** 제거</p>`;
+            const poppedValue = q.shift();
+            const itemDiv = queueArea.firstChild;
+            if (itemDiv) {
+                itemDiv.style.transform = 'scale(0.5)';
+                itemDiv.style.opacity = '0';
+            }
+            setTimeout(() => {
+                if (itemDiv) itemDiv.remove();
+                resolve(poppedValue);
+            }, 500);
+        });
+    }
+
+    window.onload = async function() {
+        await appendItem('A');
+        await appendItem('B');
+        const popped = await popLeftItem();
+        resultDisplay.textContent = `제거된 값: '${popped}'`;
+    };
+</script>
+
+</body>
+</html>
